@@ -8,6 +8,7 @@
 // TonyWilk, Mar 2015
 //
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>	// memset()
 
@@ -38,14 +39,14 @@ struct jWriteControl g_jWriteControl;			// global control struct
 //------------------------------------------
 // Internal functions
 //
-void jwPutch( JWC_DECL char c );
-void jwPutstr( JWC_DECL const char *str );
-void jwPutraw( JWC_DECL const char *str );
-void modp_itoa10(int32_t value, char* str);
-void modp_dtoa2(double value, char* str, int prec);
-void jwPretty( JWC_DECL0 );
-enum jwNodeType jwPop( JWC_DECL0 );
-void jwPush( JWC_DECL enum jwNodeType nodeType );
+static void jwPutch( JWC_DECL char c );
+static void jwPutstr( JWC_DECL const char *str );
+static void jwPutraw( JWC_DECL const char *str );
+static void modp_itoa10(int32_t value, char* str);
+static void modp_dtoa2(double value, char* str, size_t str_size, int prec);
+static void jwPretty( JWC_DECL0 );
+static enum jwNodeType jwPop( JWC_DECL0 );
+static void jwPush( JWC_DECL enum jwNodeType nodeType );
 
 
 //------------------------------------------
@@ -54,7 +55,7 @@ void jwPush( JWC_DECL enum jwNodeType nodeType );
 // - initialise with user string buffer of length buflen
 // - isPretty=JW_PRETTY adds \n and spaces to prettify output (else JW_COMPACT)
 //
-void jwOpen( JWC_DECL char *buffer, unsigned int buflen, 
+void jwOpen( JWC_DECL char *buffer, unsigned int buflen,
 				   enum jwNodeType rootType, int isPretty )
 {
 	memset( buffer, 0, buflen );	// zap the whole destination buffer
@@ -149,7 +150,7 @@ void jwObj_int( JWC_DECL const char *key, int value )
 
 void jwObj_double( JWC_DECL const char *key, double value )
 {
-	modp_dtoa2( value, JWC(tmpbuf), 6 );
+	modp_dtoa2( value, JWC(tmpbuf), sizeof JWC(tmpbuf), 6 );
 	jwObj_raw( JWC_PARAM key, JWC(tmpbuf) );
 }
 
@@ -214,7 +215,7 @@ void jwArr_int( JWC_DECL int value )
 
 void jwArr_double( JWC_DECL double value )
 {
-	modp_dtoa2( value, JWC(tmpbuf), 6 );
+	modp_dtoa2( value, JWC(tmpbuf), sizeof JWC(tmpbuf), 6 );
 	jwArr_raw( JWC_PARAM JWC(tmpbuf) );
 }
 
@@ -255,7 +256,7 @@ char *jwErrorToString( int err )
 {
 	switch( err )
 	{
-	case JWRITE_OK:         return "OK"; 
+	case JWRITE_OK:         return "OK";
 	case JWRITE_BUF_FULL:   return "output buffer full";
 	case JWRITE_NOT_ARRAY:	return "tried to write Array value into Object";
 	case JWRITE_NOT_OBJECT:	return "tried to write Object key/value into Array";
@@ -440,7 +441,7 @@ static const double pow10[] = {1, 10, 100, 1000, 10000, 100000, 1000000,
  * \param[in] precision  Number of digits to the right of the decimal point.
  *    Can only be 0-9.
  */
-void modp_dtoa2(double value, char* str, int prec)
+void modp_dtoa2(double value, char* str, size_t str_size, int prec)
 {
     /* if input is larger than thres_max, revert to exponential */
     const double thres_max = (double)(0x7FFFFFFF);
@@ -458,7 +459,7 @@ void modp_dtoa2(double value, char* str, int prec)
      * to link with libmath (bad) or hack IEEE double bits (bad)
      */
     if (! (value == value)) {
-        str[0] = 'n'; str[1] = 'a'; str[2] = 'n'; str[3] = '\0';
+        strncpy(str, "nan", str_size);
         return;
     }
 
@@ -502,7 +503,7 @@ void modp_dtoa2(double value, char* str, int prec)
       which can be 100s of characters overflowing your buffers == bad
     */
     if (value > thres_max) {
-        sprintf(str, "%e", neg ? -value : value);
+        snprintf(str, str_size, "%e", neg ? -value : value);
         return;
     }
 

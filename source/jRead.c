@@ -1,4 +1,4 @@
-// jRead.cpp 
+// jRead.cpp
 // Version 1v6
 //
 // jRead - an in-place JSON element reader
@@ -84,9 +84,9 @@
 //
 // *NEW* in 1v2
 // - "{NUMBER" returns the "key" value at that index within an object
-// - jReadParam() adds queryParams which can be used as indexes into arrays (or into 
+// - jReadParam() adds queryParams which can be used as indexes into arrays (or into
 //   objects to return key values) by specifying '*' in the query string
-//   e.g. jReadParam( pJson, "[*", &result, &index ) 
+//   e.g. jReadParam( pJson, "[*", &result, &index )
 // *NEW in 1v4
 // - fixed a couple of error return values
 // - added #define JREAD_DOUBLE_QUOTE_IN_QUERY
@@ -98,7 +98,7 @@
 // - Change arg to const to clarify caller that the arg will not be changed
 //   and to remove compile warnings
 //
-// TonyWilk, 24sep2016 
+// TonyWilk, 24sep2016
 // mail at tonywilk . co .uk
 // Jonas Andersson 22mar2018
 //
@@ -150,7 +150,7 @@ const char *jReadSkipWhitespace( const char *sp )
 	while( (*sp != '\0') && (*sp <= ' ') )
 		sp++;
 	return sp;
-};
+}
 
 
 // Find start of a token
@@ -168,7 +168,7 @@ const char *jReadFindTok( const char *sp, int *tokType )
 	else if( c == '-') *tokType= JREAD_NUMBER;
 	else if( c == '{') *tokType= JREAD_OBJECT;
 	else if( c == '[') *tokType= JREAD_ARRAY;
-	else if( c == '}') *tokType= JREAD_EOBJECT; 
+	else if( c == '}') *tokType= JREAD_EOBJECT;
 	else if( c == ']') *tokType= JREAD_EARRAY;
 	else if((c == 't') || (c == 'f')) *tokType= JREAD_BOOL;
 	else if( c == 'n') *tokType= JREAD_NULL;
@@ -177,7 +177,7 @@ const char *jReadFindTok( const char *sp, int *tokType )
 	else if( c == '*') *tokType= JREAD_QPARAM;
 	else *tokType= JREAD_ERROR;
 	return sp;
-};
+}
 
 // jReadGetString
 // - assumes next element is "string" which may include "\" sequences
@@ -218,7 +218,7 @@ const char * jReadGetString( const char *pJson, struct jReadElement *pElem, char
 		};
 	};
 	return pJson;
-};
+}
 
 // jReadTextLen
 // - used to identify length of element text
@@ -245,7 +245,7 @@ int jReadTextLen( const char *pJson )
 int jReadStrcmp( struct jReadElement *j1, struct jReadElement *j2 )
 {
 	int i;
-	if( (j1->dataType != JREAD_STRING) || 
+	if( (j1->dataType != JREAD_STRING) ||
 		(j2->dataType != JREAD_STRING) ||
 		(j1->bytelen != j2->bytelen ) )
 		return 1;
@@ -253,7 +253,7 @@ int jReadStrcmp( struct jReadElement *j1, struct jReadElement *j2 )
 	for( i=0; i< j1->bytelen; i++ )
 		if( ((char *)(j1->pValue))[i] != ((char *)(j2->pValue))[i] )
 			return 1;
-	return 0; 
+	return 0;
 }
 
 // read unsigned int from string
@@ -342,9 +342,9 @@ char *jRead_strcpy( char *destBuffer, int destLength, struct jReadElement *pElem
 	char *psrc= (char *)pElement->pValue;
 	if( pElement->error == 0 )
 	{
-		if( len >= destLength )
-			len= destLength;
-		for( i=0; i<destLength; i++ )
+		if (len > destLength)
+			len = destLength;
+		for( i=0; i < len; i++ )
 			*pdest++= *psrc++;
 	}
 	*pdest= '\0';
@@ -368,7 +368,7 @@ const char * jReadCountObject( const char *pJson, struct jReadElement *pResult, 
 	pResult->elements= 0;
 	pResult->pValue= pJson;
 	sp= jReadFindTok( pJson+1, &jTok ); // check for empty object
-	if( jTok == JREAD_EOBJECT )		
+	if( jTok == JREAD_EOBJECT )
 	{
 		pJson= sp+1;
 	}else
@@ -438,7 +438,7 @@ const char * jReadCountArray( const char *pJson, struct jReadElement *pResult )
 	pResult->elements= 0;
 	pResult->pValue= pJson;
 	sp= jReadFindTok( pJson+1, &jTok ); // check for empty array
-	if( jTok == JREAD_EARRAY )		
+	if( jTok == JREAD_EARRAY )
 	{
 		pJson= sp+1;
 	}else
@@ -532,7 +532,7 @@ const char * jReadParam( const char *pJson, const char *pQuery, struct jReadElem
 
 	case JREAD_OBJECT:		// "{"
 		if( qTok == JREAD_EOL )
-			return jReadCountObject( pJson, pResult, -1 );	// return length of object 
+			return jReadCountObject( pJson, pResult, -1 );	// return length of object
 
 		pQuery= jReadFindTok( ++pQuery, &qTok );			// "('key'...", "{NUMBER", "{*" or EOL
 		if( qTok != JREAD_STRING )
@@ -599,13 +599,13 @@ const char * jReadParam( const char *pJson, const char *pQuery, struct jReadElem
 		// read index, skip values 'til index
 		//
 		if( qTok == JREAD_EOL )
-			return jReadCountArray( pJson, pResult );	// return length of object 
+			return jReadCountArray( pJson, pResult );	// return length of object
 
 		index= 0;
 		pQuery= jReadFindTok( ++pQuery, &qTok );		// "[NUMBER" or "[*"
-		if( qTok == JREAD_NUMBER )		
+		if( qTok == JREAD_NUMBER )
 		{
-			pQuery= jRead_atoi( pQuery, &index );		// get array index	
+			pQuery= jRead_atoi( pQuery, &index );		// get array index
 		}else if( qTok == JREAD_QPARAM )
 		{
 			pQuery++;
@@ -621,7 +621,7 @@ const char * jReadParam( const char *pJson, const char *pQuery, struct jReadElem
 			pJson= jRead( ++pJson, "", &jElement );
 			if( pResult->error )
 				break;
-			count++;				
+			count++;
 			pJson= jReadFindTok( pJson, &jTok );			// , or ]
 			if( jTok == JREAD_EARRAY )
 			{
@@ -635,7 +635,7 @@ const char * jReadParam( const char *pJson, const char *pQuery, struct jReadElem
 			}
 		}
 		break;
-	case JREAD_STRING:		// "string" 
+	case JREAD_STRING:		// "string"
 		pJson= jReadGetString( pJson, pResult, '\"' );
 		break;
 	case JREAD_NUMBER:		// number (may be -ve) int or float
@@ -674,10 +674,10 @@ const char * jReadParam( const char *pJson, const char *pQuery, struct jReadElem
 //
 // Note: by default, pass NULL for queryParams
 //       unless you are using '*' in the query for indexing
-// 
+//
 
 // jRead_long
-// - reads signed long value from JSON 
+// - reads signed long value from JSON
 // - returns number from NUMBER or STRING elements (if possible)
 //   returns 1 or 0 from BOOL elements
 //   otherwise returns 0
@@ -762,7 +762,7 @@ char *jReadTypeStrings[]={
 char *jReadTypeToString( int dataType )
 {
 	return jReadTypeStrings[ dataType ];
-};
+}
 
 char * jReadErrorStrings[]={
 	"Ok",                                       // 0
@@ -786,6 +786,6 @@ char * jReadErrorToString( int error )
 	if( (error >=0 ) && (error <= 14))
 		return jReadErrorStrings[ error ];
 	return "Unknown error";
-};
+}
 
 // end of jRead.c
