@@ -87,25 +87,25 @@ extern "C" {
 #define JW_COMPACT 0
 
 enum jwNodeType{
-	JW_OBJECT= 1,
-	JW_ARRAY
+    JW_OBJECT= 1,
+    JW_ARRAY
 };
 
 struct jwNodeStack{
-	enum jwNodeType nodeType;
-	int elementNo;
+    enum jwNodeType nodeType;
+    int elementNo;
 };
 
 struct jWriteControl{
-	char *buffer;						// pointer to application's buffer
-	unsigned int buflen;				// length of buffer
-	char *bufp;							// current write position in buffer
-	char tmpbuf[32];					// local buffer for int/double convertions
-	int error;							// error code
-	int callNo;							// API call on which error occurred
-	struct jwNodeStack nodeStack[JWRITE_STACK_DEPTH];	// stack of array/object nodes
-	int stackpos;
-	int isPretty;						// 1= pretty output (inserts \n and spaces)
+    char *buffer;						// pointer to application's buffer
+    unsigned int buflen;				// length of buffer
+    char *bufp;							// current write position in buffer
+    char tmpbuf[32];					// local buffer for int/double convertions
+    int error;							// error code
+    int callNo;							// API call on which error occurred
+    struct jwNodeStack nodeStack[JWRITE_STACK_DEPTH];	// stack of array/object nodes
+    int stackpos;
+    int isPretty;						// 1= pretty output (inserts \n and spaces)
 };
 
 // Error Codes

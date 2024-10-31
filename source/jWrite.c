@@ -56,19 +56,19 @@ static void jwPush( JWC_DECL enum jwNodeType nodeType );
 // - isPretty=JW_PRETTY adds \n and spaces to prettify output (else JW_COMPACT)
 //
 void jwOpen( JWC_DECL char *buffer, unsigned int buflen,
-				   enum jwNodeType rootType, int isPretty )
+                   enum jwNodeType rootType, int isPretty )
 {
-	memset( buffer, 0, buflen );	// zap the whole destination buffer
-	JWC(buffer)= buffer;
-	JWC(buflen)= buflen;
-	JWC(bufp)= buffer;
-	JWC(nodeStack)[0].nodeType= rootType;
-	JWC(nodeStack)[0].elementNo= 0;
-	JWC(stackpos)=0;
-	JWC(error)= JWRITE_OK;
-	JWC(callNo)= 1;
-	JWC(isPretty)= isPretty;
-	jwPutch( JWC_PARAM (rootType==JW_OBJECT) ? '{' : '[' );
+    memset( buffer, 0, buflen );	// zap the whole destination buffer
+    JWC(buffer)= buffer;
+    JWC(buflen)= buflen;
+    JWC(bufp)= buffer;
+    JWC(nodeStack)[0].nodeType= rootType;
+    JWC(nodeStack)[0].elementNo= 0;
+    JWC(stackpos)=0;
+    JWC(error)= JWRITE_OK;
+    JWC(callNo)= 1;
+    JWC(isPretty)= isPretty;
+    jwPutch( JWC_PARAM (rootType==JW_OBJECT) ? '{' : '[' );
 }
 
 //------------------------------------------
@@ -78,19 +78,19 @@ void jwOpen( JWC_DECL char *buffer, unsigned int buflen,
 //
 int jwClose( JWC_DECL0 )
 {
-	if( JWC(error) == JWRITE_OK )
-	{
-		if( JWC(stackpos) == 0 )
-		{
-			enum jwNodeType node= JWC(nodeStack)[0].nodeType;
-			if( JWC(isPretty) )
-				jwPutch( JWC_PARAM '\n' );
-			jwPutch( JWC_PARAM (node == JW_OBJECT) ? '}' : ']');
-		}else{
-			JWC(error)= JWRITE_NEST_ERROR;	// nesting error, not all objects closed when jwClose() called
-		}
-	}
-	return JWC(error);
+    if( JWC(error) == JWRITE_OK )
+    {
+        if( JWC(stackpos) == 0 )
+        {
+            enum jwNodeType node= JWC(nodeStack)[0].nodeType;
+            if( JWC(isPretty) )
+                jwPutch( JWC_PARAM '\n' );
+            jwPutch( JWC_PARAM (node == JW_OBJECT) ? '}' : ']');
+        }else{
+            JWC(error)= JWRITE_NEST_ERROR;	// nesting error, not all objects closed when jwClose() called
+        }
+    }
+    return JWC(error);
 }
 
 //------------------------------------------
@@ -98,16 +98,16 @@ int jwClose( JWC_DECL0 )
 //
 int jwEnd( JWC_DECL0 )
 {
-	if( JWC(error) == JWRITE_OK )
-	{
-		enum jwNodeType node;
-		int lastElemNo= JWC(nodeStack)[JWC(stackpos)].elementNo;
-		node= jwPop( JWC_PARAM0 );
-		if( lastElemNo > 0 )
-			jwPretty( JWC_PARAM0 );
-		jwPutch( JWC_PARAM (node == JW_OBJECT) ? '}' : ']');
-	}
-	return JWC(error);
+    if( JWC(error) == JWRITE_OK )
+    {
+        enum jwNodeType node;
+        int lastElemNo= JWC(nodeStack)[JWC(stackpos)].elementNo;
+        node= jwPop( JWC_PARAM0 );
+        if( lastElemNo > 0 )
+            jwPretty( JWC_PARAM0 );
+        jwPutch( JWC_PARAM (node == JW_OBJECT) ? '}' : ']');
+    }
+    return JWC(error);
 }
 
 
@@ -117,7 +117,7 @@ int jwEnd( JWC_DECL0 )
 //
 int jwErrorPos( JWC_DECL0 )
 {
-	return JWC(callNo);
+    return JWC(callNo);
 }
 
 
@@ -130,60 +130,60 @@ int _jwObj( JWC_DECL const char *key );
 //
 void jwObj_raw( JWC_DECL const char *key, const char *rawtext )
 {
-	if(_jwObj( JWC_PARAM key ) == JWRITE_OK)
-		jwPutraw( JWC_PARAM rawtext);
+    if(_jwObj( JWC_PARAM key ) == JWRITE_OK)
+        jwPutraw( JWC_PARAM rawtext);
 }
 
 // put "quoted" string to object
 //
 void jwObj_string( JWC_DECL const char *key, const char *value )
 {
-	if(_jwObj( JWC_PARAM key ) == JWRITE_OK)
-		jwPutstr( JWC_PARAM value );
+    if(_jwObj( JWC_PARAM key ) == JWRITE_OK)
+        jwPutstr( JWC_PARAM value );
 }
 
 void jwObj_int( JWC_DECL const char *key, int value )
 {
-	modp_itoa10( value, JWC(tmpbuf) );
-	jwObj_raw( JWC_PARAM key, JWC(tmpbuf) );
+    modp_itoa10( value, JWC(tmpbuf) );
+    jwObj_raw( JWC_PARAM key, JWC(tmpbuf) );
 }
 
 void jwObj_double( JWC_DECL const char *key, double value )
 {
-	modp_dtoa2( value, JWC(tmpbuf), sizeof JWC(tmpbuf), 6 );
-	jwObj_raw( JWC_PARAM key, JWC(tmpbuf) );
+    modp_dtoa2( value, JWC(tmpbuf), sizeof JWC(tmpbuf), 6 );
+    jwObj_raw( JWC_PARAM key, JWC(tmpbuf) );
 }
 
 void jwObj_bool( JWC_DECL const char *key, int oneOrZero )
 {
-	jwObj_raw( JWC_PARAM key, (oneOrZero) ? "true" : "false" );
+    jwObj_raw( JWC_PARAM key, (oneOrZero) ? "true" : "false" );
 }
 
 void jwObj_null( JWC_DECL const char *key )
 {
-	jwObj_raw( JWC_PARAM key, "null" );
+    jwObj_raw( JWC_PARAM key, "null" );
 }
 
 // put Object in Object
 //
 void jwObj_object( JWC_DECL const char *key )
 {
-	if(_jwObj( JWC_PARAM key ) == JWRITE_OK)
-	{
-		jwPutch( JWC_PARAM '{' );
-		jwPush( JWC_PARAM JW_OBJECT );
-	}
+    if(_jwObj( JWC_PARAM key ) == JWRITE_OK)
+    {
+        jwPutch( JWC_PARAM '{' );
+        jwPush( JWC_PARAM JW_OBJECT );
+    }
 }
 
 // put Array in Object
 //
 void jwObj_array( JWC_DECL const char *key )
 {
-	if(_jwObj( JWC_PARAM key ) == JWRITE_OK)
-	{
-		jwPutch( JWC_PARAM '[' );
-		jwPush( JWC_PARAM JW_ARRAY );
-	}
+    if(_jwObj( JWC_PARAM key ) == JWRITE_OK)
+    {
+        jwPutch( JWC_PARAM '[' );
+        jwPush( JWC_PARAM JW_ARRAY );
+    }
 }
 
 //------------------------------------------
@@ -195,56 +195,56 @@ int _jwArr( JWC_DECL0 );
 //
 void jwArr_raw( JWC_DECL const char *rawtext )
 {
-	if(_jwArr( JWC_PARAM0 ) == JWRITE_OK)
-		jwPutraw( JWC_PARAM rawtext);
+    if(_jwArr( JWC_PARAM0 ) == JWRITE_OK)
+        jwPutraw( JWC_PARAM rawtext);
 }
 
 // put "quoted" string to array
 //
 void jwArr_string( JWC_DECL const char *value )
 {
-	if(_jwArr( JWC_PARAM0 ) == JWRITE_OK)
-		jwPutstr( JWC_PARAM value );
+    if(_jwArr( JWC_PARAM0 ) == JWRITE_OK)
+        jwPutstr( JWC_PARAM value );
 }
 
 void jwArr_int( JWC_DECL int value )
 {
-	modp_itoa10( value, JWC(tmpbuf) );
-	jwArr_raw( JWC_PARAM JWC(tmpbuf) );
+    modp_itoa10( value, JWC(tmpbuf) );
+    jwArr_raw( JWC_PARAM JWC(tmpbuf) );
 }
 
 void jwArr_double( JWC_DECL double value )
 {
-	modp_dtoa2( value, JWC(tmpbuf), sizeof JWC(tmpbuf), 6 );
-	jwArr_raw( JWC_PARAM JWC(tmpbuf) );
+    modp_dtoa2( value, JWC(tmpbuf), sizeof JWC(tmpbuf), 6 );
+    jwArr_raw( JWC_PARAM JWC(tmpbuf) );
 }
 
 void jwArr_bool( JWC_DECL int oneOrZero )
 {
-	jwArr_raw( JWC_PARAM  (oneOrZero) ? "true" : "false" );
+    jwArr_raw( JWC_PARAM  (oneOrZero) ? "true" : "false" );
 }
 
 void jwArr_null( JWC_DECL0 )
 {
-	jwArr_raw( JWC_PARAM  "null" );
+    jwArr_raw( JWC_PARAM  "null" );
 }
 
 void jwArr_object( JWC_DECL0 )
 {
-	if(_jwArr( JWC_PARAM0 ) == JWRITE_OK)
-	{
-		jwPutch( JWC_PARAM '{' );
-		jwPush( JWC_PARAM JW_OBJECT );
-	}
+    if(_jwArr( JWC_PARAM0 ) == JWRITE_OK)
+    {
+        jwPutch( JWC_PARAM '{' );
+        jwPush( JWC_PARAM JW_OBJECT );
+    }
 }
 
 void jwArr_array( JWC_DECL0 )
 {
-	if(_jwArr( JWC_PARAM0 ) == JWRITE_OK)
-	{
-		jwPutch( JWC_PARAM '[' );
-		jwPush( JWC_PARAM JW_ARRAY );
-	}
+    if(_jwArr( JWC_PARAM0 ) == JWRITE_OK)
+    {
+        jwPutch( JWC_PARAM '[' );
+        jwPush( JWC_PARAM JW_ARRAY );
+    }
 }
 
 
@@ -254,17 +254,17 @@ void jwArr_array( JWC_DECL0 )
 //
 char *jwErrorToString( int err )
 {
-	switch( err )
-	{
-	case JWRITE_OK:         return "OK";
-	case JWRITE_BUF_FULL:   return "output buffer full";
-	case JWRITE_NOT_ARRAY:	return "tried to write Array value into Object";
-	case JWRITE_NOT_OBJECT:	return "tried to write Object key/value into Array";
-	case JWRITE_STACK_FULL:	return "array/object nesting > JWRITE_STACK_DEPTH";
-	case JWRITE_STACK_EMPTY:return "stack underflow error (too many 'end's)";
-	case JWRITE_NEST_ERROR:	return "nesting error, not all objects closed when jwClose() called";
-	}
-	return "Unknown error";
+    switch( err )
+    {
+    case JWRITE_OK:         return "OK";
+    case JWRITE_BUF_FULL:   return "output buffer full";
+    case JWRITE_NOT_ARRAY:	return "tried to write Array value into Object";
+    case JWRITE_NOT_OBJECT:	return "tried to write Object key/value into Array";
+    case JWRITE_STACK_FULL:	return "array/object nesting > JWRITE_STACK_DEPTH";
+    case JWRITE_STACK_EMPTY:return "stack underflow error (too many 'end's)";
+    case JWRITE_NEST_ERROR:	return "nesting error, not all objects closed when jwClose() called";
+    }
+    return "Unknown error";
 }
 
 //============================================================================
@@ -272,64 +272,64 @@ char *jwErrorToString( int err )
 //
 void jwPretty( JWC_DECL0 )
 {
-	int i;
-	if( JWC(isPretty) )
-	{
-		jwPutch( JWC_PARAM '\n' );
-		for( i=0; i<JWC(stackpos)+1; i++ )
-			jwPutraw( JWC_PARAM "    " );
-	}
+    int i;
+    if( JWC(isPretty) )
+    {
+        jwPutch( JWC_PARAM '\n' );
+        for( i=0; i<JWC(stackpos)+1; i++ )
+            jwPutraw( JWC_PARAM "    " );
+    }
 }
 
 // Push / Pop node stack
 //
 void jwPush( JWC_DECL enum jwNodeType nodeType )
 {
-	if( (JWC(stackpos)+1) >= JWRITE_STACK_DEPTH )
-		JWC(error)= JWRITE_STACK_FULL;		// array/object nesting > JWRITE_STACK_DEPTH
-	else
-	{
-		JWC(nodeStack[++JWC(stackpos)]).nodeType= nodeType;
-		JWC(nodeStack[JWC(stackpos)]).elementNo= 0;
-	}
+    if( (JWC(stackpos)+1) >= JWRITE_STACK_DEPTH )
+        JWC(error)= JWRITE_STACK_FULL;		// array/object nesting > JWRITE_STACK_DEPTH
+    else
+    {
+        JWC(nodeStack[++JWC(stackpos)]).nodeType= nodeType;
+        JWC(nodeStack[JWC(stackpos)]).elementNo= 0;
+    }
 }
 
 enum jwNodeType jwPop( JWC_DECL0 )
 {
-	enum jwNodeType retval= JWC(nodeStack[JWC(stackpos)]).nodeType;
-	if( JWC(stackpos) == 0 )
-		JWC(error)= JWRITE_STACK_EMPTY;		// stack underflow error (too many 'end's)
-	else
-		JWC(stackpos)--;
-	return retval;
+    enum jwNodeType retval= JWC(nodeStack[JWC(stackpos)]).nodeType;
+    if( JWC(stackpos) == 0 )
+        JWC(error)= JWRITE_STACK_EMPTY;		// stack underflow error (too many 'end's)
+    else
+        JWC(stackpos)--;
+    return retval;
 }
 
 void jwPutch( JWC_DECL char c )
 {
-	if( (unsigned int)(JWC(bufp) - JWC(buffer)) >= JWC(buflen) )
-	{
-		JWC(error)= JWRITE_BUF_FULL;
-	}else{
-		*JWC(bufp)++ = c;
-	}
+    if( (unsigned int)(JWC(bufp) - JWC(buffer)) >= JWC(buflen) )
+    {
+        JWC(error)= JWRITE_BUF_FULL;
+    }else{
+        *JWC(bufp)++ = c;
+    }
 }
 
 // put string enclosed in quotes
 //
 void jwPutstr( JWC_DECL const char *str )
 {
-	jwPutch( JWC_PARAM '\"' );
-	while( *str != '\0' )
-		jwPutch( JWC_PARAM *str++ );
-	jwPutch( JWC_PARAM '\"' );
+    jwPutch( JWC_PARAM '\"' );
+    while( *str != '\0' )
+        jwPutch( JWC_PARAM *str++ );
+    jwPutch( JWC_PARAM '\"' );
 }
 
 // put raw string
 //
 void jwPutraw( JWC_DECL const char *str )
 {
-	while( *str != '\0' )
-		jwPutch( JWC_PARAM *str++ );
+    while( *str != '\0' )
+        jwPutch( JWC_PARAM *str++ );
 }
 
 
@@ -341,20 +341,20 @@ void jwPutraw( JWC_DECL const char *str )
 //
 int _jwObj( JWC_DECL const char *key )
 {
-	if(JWC(error) == JWRITE_OK)
-	{
-		JWC(callNo)++;
-		if( JWC(nodeStack)[JWC(stackpos)].nodeType != JW_OBJECT )
-			JWC(error)= JWRITE_NOT_OBJECT;			// tried to write Object key/value into Array
-		else if( JWC(nodeStack)[JWC(stackpos)].elementNo++ > 0 )
-			jwPutch( JWC_PARAM ',' );
-		jwPretty( JWC_PARAM0 );
-		jwPutstr( JWC_PARAM key );
-		jwPutch( JWC_PARAM ':' );
-		if( JWC(isPretty) )
-			jwPutch( JWC_PARAM ' ' );
-	}
-	return JWC(error);
+    if(JWC(error) == JWRITE_OK)
+    {
+        JWC(callNo)++;
+        if( JWC(nodeStack)[JWC(stackpos)].nodeType != JW_OBJECT )
+            JWC(error)= JWRITE_NOT_OBJECT;			// tried to write Object key/value into Array
+        else if( JWC(nodeStack)[JWC(stackpos)].elementNo++ > 0 )
+            jwPutch( JWC_PARAM ',' );
+        jwPretty( JWC_PARAM0 );
+        jwPutstr( JWC_PARAM key );
+        jwPutch( JWC_PARAM ':' );
+        if( JWC(isPretty) )
+            jwPutch( JWC_PARAM ' ' );
+    }
+    return JWC(error);
 }
 
 // *common Array function*
@@ -364,16 +364,16 @@ int _jwObj( JWC_DECL const char *key )
 //
 int _jwArr( JWC_DECL0 )
 {
-	if(JWC(error) == JWRITE_OK)
-	{
-		JWC(callNo)++;
-		if( JWC(nodeStack)[JWC(stackpos)].nodeType != JW_ARRAY )
-			JWC(error)= JWRITE_NOT_ARRAY;			// tried to write array value into Object
-		else if( JWC(nodeStack)[JWC(stackpos)].elementNo++ > 0 )
-			jwPutch( JWC_PARAM ',' );
-		jwPretty( JWC_PARAM0 );
-	}
-	return JWC(error);
+    if(JWC(error) == JWRITE_OK)
+    {
+        JWC(callNo)++;
+        if( JWC(nodeStack)[JWC(stackpos)].nodeType != JW_ARRAY )
+            JWC(error)= JWRITE_NOT_ARRAY;			// tried to write array value into Object
+        else if( JWC(nodeStack)[JWC(stackpos)].elementNo++ > 0 )
+            jwPutch( JWC_PARAM ',' );
+        jwPretty( JWC_PARAM0 );
+    }
+    return JWC(error);
 }
 
 //=================================================================
@@ -448,10 +448,10 @@ void modp_dtoa2(double value, char* str, size_t str_size, int prec)
     int count;
     double diff = 0.0;
     char* wstr = str;
-	int neg= 0;
-	int whole;
-	double tmp;
-	uint32_t frac;
+    int neg= 0;
+    int whole;
+    double tmp;
+    uint32_t frac;
 
     /* Hacky test for NaN
      * under -fast-math this won't work, but then you also won't
